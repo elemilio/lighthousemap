@@ -105,6 +105,8 @@
 
 
         let url = 'https://www.overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+        let opaqueValue = 0.9;
+        let transparentValue = 0.4;
 
         url = 'data-full.json'; // For testing
 
@@ -144,7 +146,7 @@
                         radius: (parseFloat(feat.properties.tags['seamark:light:range'], 10) || 1) * 1000,
                         sequence: sequence,
                         stroke: false,
-                        fillOpacity: 0.9,
+                        fillOpacity: transparentValue,
                         fill: !!sequence.state(0),
                         fillColor: sequence.state(0)
                     });
@@ -153,20 +155,18 @@
         });
 
         let useRealColors = true;
+        let useTransparency = true;
+
 
         document.querySelector('input[name=real-colors]').checked = useRealColors;
-        document.querySelector('input[name=transparent]').checked = false;
+        document.querySelector('input[name=transparent]').checked = useTransparency;
 
 
         document.querySelector('input[name=real-colors]').addEventListener('change', function(e) {
             useRealColors = this.checked;
         });
         document.querySelector('input[name=transparent]').addEventListener('change', function(e) {
-            if (this.checked) {
-                trValue = 0.4;
-            } else {
-                trValue = 0.9;
-            }
+            useTransparency = this.checked;
         });
 
         lights.then(layer => {
@@ -176,8 +176,7 @@
                     try {
                         var state = marker.options.sequence.state(t);
                         marker.setColor(state ? (useRealColors ? state : '#FF0') : false);
-                        marker.options.fillOpacity = trValue;
-                        //console.log(marker);
+                        marker.options.fillOpacity = useTransparency ? transparentValue : opaqueValue;
                     } catch (e) {
                         console.error(e)
                     }
